@@ -515,7 +515,12 @@ section{position:relative;z-index:1;padding:100px 0;}
   transition:transform .09s linear;
 }
 
-@media (hover:none){.tilt{transform:none!important;}}
+@media (hover:none){
+  .tilt{transform:none!important;}
+  /* bigger tap targets on touch devices */
+  .proj-link,.more-link,.proj-more{padding:.55rem 0;min-height:44px;align-items:center;}
+  .proj-links{gap:1.4rem;}
+}
 @media (prefers-reduced-motion:reduce){
   .tilt,.tilt *{transform:none!important;transition:none!important;}
 }
@@ -533,7 +538,7 @@ section{position:relative;z-index:1;padding:100px 0;}
 .proj-card:hover{transform:translateY(-8px);box-shadow:0 24px 60px rgba(20,25,30,.09);}
 .proj-visual{
   height:180px;display:flex;align-items:center;justify-content:center;
-  font-size:4rem;position:relative;overflow:hidden;
+  font-size:.8rem;color:var(--muted);position:relative;overflow:hidden;
 }
 /* Screenshot lagane ke baad ye class apne aap kaam karegi */
 .proj-shot{width:100%;height:100%;object-fit:cover;object-position:top center;display:block;}
@@ -662,11 +667,22 @@ section{position:relative;z-index:1;padding:100px 0;}
   padding:.95rem 1.2rem;transition:border-color .2s,transform .2s;
 }
 .cl:not(.static):hover{border-color:var(--purple);transform:translateX(4px);}
-.cl span{display:flex;flex-direction:column;font-size:.88rem;flex:1;}
+.cl span{display:flex;flex-direction:column;font-size:.88rem;flex:1;min-width:0;text-align:left;}
 .cl span b{font-size:.72rem;font-family:var(--mono);color:var(--muted);font-weight:400;letter-spacing:.06em;text-transform:uppercase;margin-bottom:.15rem;}
 .cl-go{color:var(--border);font-size:.8rem;}
 .cl:hover .cl-go{color:var(--purple);}
 .cl.static{opacity:.85;}
+
+
+/* email: mailto still fires for anyone with a mail client, and the address is
+   copied either way — a dead mailto is otherwise a silent dead end. */
+.copy-toast{
+  position:fixed;left:50%;bottom:28px;transform:translate(-50%,14px);
+  background:var(--text);color:var(--bg);
+  font-size:.84rem;font-weight:600;padding:.6rem 1.1rem;border-radius:8px;
+  opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:200;
+}
+.copy-toast.show{opacity:1;transform:translate(-50%,0);}
 
 /* ===== FOOTER ===== */
 footer{
@@ -690,12 +706,18 @@ footer span{color:var(--purple2);}
   nav.open .nav-links{
     display:flex;flex-direction:column;
     position:absolute;top:70px;left:0;right:0;
-    background:rgba(250,250,247,.98);padding:1rem;
-    border-bottom:1px solid var(--border);gap:.25rem;
+    background:var(--bg);padding:.75rem 1rem 1rem;
+    border-bottom:1px solid var(--border);gap:.15rem;
+    box-shadow:0 18px 40px rgba(20,25,30,.12);
   }
+  nav.open .nav-link{padding:.8rem 1rem;font-size:.92rem;}
+  .burger{padding:.75rem .5rem;}
   .hero-stats{gap:1rem;}
   .projects-grid{grid-template-columns:1fr 1fr;}
   .ach-grid,.certs-grid{grid-template-columns:1fr 1fr;}
+  .cert-top{gap:.7rem;}
+  .cert-top > div{min-width:0;}
+  .cert-name,.cert-by{overflow-wrap:anywhere;}
   .contact-wrap{grid-template-columns:1fr;gap:2.2rem;padding:2rem;}
   .skills-cols{grid-template-columns:1fr;}
   .exp-timeline::before{left:18px;}
@@ -704,7 +726,22 @@ footer span{color:var(--purple2);}
 }
 @media(max-width:540px){
   .projects-grid{grid-template-columns:1fr;}
-  .ach-grid,.certs-grid{grid-template-columns:1fr 1fr;gap:.8rem;}
+
+  /* certification cards: stack icon over text so nothing gets clipped */
+  .cert-top{flex-direction:row;text-align:left;gap:.8rem;padding:1rem;align-items:center;}
+  .cert-top > div{min-width:0;}
+  .cert-name,.cert-by{overflow-wrap:break-word;}
+  .cert-bottom{flex-direction:row;align-items:center;gap:.5rem;padding:.6rem 1rem;}
+
+  /* contact rows: let the label and value use the full width */
+  .cl{flex-wrap:wrap;gap:.6rem;padding:.85rem 1rem;}
+  .cl span{min-width:0;overflow-wrap:anywhere;}
+  .cl-go{display:none;}
+
+  /* hero buttons: one per row reads better than two cramped ones */
+  .hero-btns .btn-primary,.hero-btns .btn-ghost{flex:1 1 100%;}
+  .ach-grid{grid-template-columns:1fr 1fr;gap:.8rem;}
+  .certs-grid{grid-template-columns:1fr;gap:.7rem;}
   .ach-emoji{font-size:1.9rem;}
   .ach-name{font-size:.85rem;}
   .ach-org{font-size:.72rem;line-height:1.4;}
@@ -723,7 +760,7 @@ footer span{color:var(--purple2);}
   .hero-desc{font-size:.94rem;line-height:1.7;margin-bottom:1.1rem;}
   .hero-facts{gap:.4rem;margin-bottom:1.4rem;}
   .hero-btns{gap:.6rem;margin-bottom:1.2rem;}
-  .hero-btns .btn-primary,.hero-btns .btn-ghost{flex:1;justify-content:center;padding:.75rem 1rem;}
+  .hero-btns .btn-primary,.hero-btns .btn-ghost{flex:1 1 100%;justify-content:center;padding:.8rem 1rem;}
   .available-badge{margin-bottom:1.2rem;}
   .hero-face{width:84px;height:84px;}
 }
@@ -865,8 +902,7 @@ footer span{color:var(--purple2);}
 
     <div class="proj-card featured">
       <div class="proj-visual pv2">
-        <img class="proj-shot" loading="lazy"
-             src="https://raw.githubusercontent.com/Sidra-Hayat/cui-room-scheduler/main/docs/screenshots/02-public-timetable.png"
+        <img class="proj-shot" loading="lazy" src="assets/projects/cui-scheduler.png"
              alt="CUI Room Scheduler public weekly timetable">
         <span class="proj-live">Semester project</span><span class="proj-badge pb2">Laravel · PHP</span>
       </div>
@@ -1275,17 +1311,14 @@ footer span{color:var(--purple2);}
         <span class="ic cl-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg></span>
       </a>
       <a href="https://github.com/Sidra-Hayat" target="_blank" rel="noopener" class="cl">
-        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 8L4 12l4.5 4M15.5 8l4.5 4-4.5 4"/></svg></span>
         <span><b>GitHub</b>Sidra-Hayat</span>
         <span class="ic cl-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg></span>
       </a>
       <a href="https://leetcode.com/u/Sidra_Hayat/" target="_blank" rel="noopener" class="cl">
-        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 8L4 12l4.5 4M15.5 8l4.5 4-4.5 4"/></svg></span>
         <span><b>LeetCode</b>Sidra_Hayat</span>
         <span class="ic cl-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg></span>
       </a>
       <div class="cl static">
-        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span>
         <span><b>Based in</b>Okara, Punjab, Pakistan</span>
       </div>
     </div>
@@ -1296,6 +1329,8 @@ footer span{color:var(--purple2);}
 <footer>
   <p>© 2026 <span>Sidra Hayat</span> · Built by hand with HTML, CSS and JavaScript</p>
 </footer>
+
+<div class="copy-toast" id="copyToast"></div>
 
 <script>
 
@@ -1338,6 +1373,33 @@ document.querySelectorAll('.proj-more').forEach(btn => {
     btn.textContent = open ? 'less \u2191' : 'more \u2192';
   });
 });
+
+
+// ===== EMAIL: COPY AS WELL AS MAILTO =====
+// A mailto: link does nothing on a machine with no default mail client, which
+// is most people who only use webmail. Copy the address too, and say so.
+(() => {
+  const toast = document.getElementById('copyToast');
+  const show = msg => {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(show._t);
+    show._t = setTimeout(() => toast.classList.remove('show'), 2200);
+  };
+
+  document.querySelectorAll('a[href^="mailto:"]').forEach(a => {
+    a.addEventListener('click', () => {
+      const address = a.getAttribute('href').replace('mailto:', '').split('?')[0];
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(address)
+          .then(() => show('Email address copied — ' + address))
+          .catch(() => show(address));
+      } else {
+        show(address);
+      }
+    });
+  });
+})();
 
 // ===== IN-PAGE LINKS =====
 // Sandboxed previews (and some embeds) resolve "#id" against the parent page,
